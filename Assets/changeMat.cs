@@ -15,4 +15,8 @@ public class changeMat : MonoBehaviour
     {
         
     }
+
+    public void SayHello() {
+        Debug.Log("Hello!");
+    }
 }
