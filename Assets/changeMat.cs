@@ -7,6 +7,8 @@ public class changeMat : MonoBehaviour
     [SerializeField] private Material glass, emissive;
     [SerializeField] private bool testing = false;
     [SerializeField] private Light light;
+    [SerializeField] private Transform player;      // for teleporting the player.
+    [SerializeField] private Transform teleportTarget;      // for teleporting the player.
     private Renderer rend;
     private bool litUp = false;
 
@@ -21,7 +23,12 @@ public class changeMat : MonoBehaviour
     void Update() {
         if(testing) {
             if(Input.GetKeyDown(KeyCode.L)) ToggleLight();
+            if(Input.GetKeyDown(KeyCode.Alpha9)) TeleportPlayer();
         }
+    }
+
+    private void TeleportPlayer() {
+        player.position = teleportTarget.position;
     }
 
     public void SayHello() {
@@ -40,6 +47,10 @@ public class changeMat : MonoBehaviour
         }
 
         litUp = !litUp;
+    }
+
+    public void ChangeLightLevel(float amount) {
+        light.intensity = amount;
     }
 
     private IEnumerator FadeLightTo(float end = 1) {
