@@ -1,3 +1,4 @@
+using System;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -10,6 +11,9 @@ namespace UnityEngine.XR.Content.Interaction
     {
         const float k_LeverDeadZone = 0.1f; // Prevents rapid switching between on and off states when right in the middle
 
+        [Serializable]
+        public class ValueChangeEvent : UnityEvent<float> { }
+
         [SerializeField]
         [Tooltip("The object that is visually grabbed and manipulated")]
         Transform m_Handle = null;
@@ -17,6 +21,10 @@ namespace UnityEngine.XR.Content.Interaction
         [SerializeField]
         [Tooltip("The value of the lever")]
         bool m_Value = false;
+
+        [SerializeField]
+        [Tooltip("The normalized float value of the lever")]
+        float m_FloatValue = 0;
 
         [SerializeField]
         [Tooltip("If enabled, the lever will snap to the value position when released")]
@@ -39,6 +47,10 @@ namespace UnityEngine.XR.Content.Interaction
         [SerializeField]
         [Tooltip("Events to trigger when the lever deactivates")]
         UnityEvent m_OnLeverDeactivate = new UnityEvent();
+
+        [SerializeField]
+        [Tooltip("Events to trigger when the slider is moved")]
+        ValueChangeEvent m_OnValueChange = new ValueChangeEvent();
 
         IXRSelectInteractor m_Interactor;
 
@@ -92,6 +104,31 @@ namespace UnityEngine.XR.Content.Interaction
         /// Events to trigger when the lever deactivates
         /// </summary>
         public UnityEvent onLeverDeactivate => m_OnLeverDeactivate;
+
+        /// <summary>
+        /// Events to trigger when the lever is moved
+        /// </summary>
+        public ValueChangeEvent onValueChange => m_OnValueChange;
+
+        /// <summary>
+        /// The value of the slider
+        /// </summary>
+        public float floatValue
+        {
+            get => m_FloatValue;
+            set
+            {
+                SetValue(floatValue);
+                // SetSliderPosition(value);
+            }
+        }
+
+        void SetValue(float value)
+        {
+            m_FloatValue = value;
+            m_OnValueChange.Invoke(m_FloatValue);
+            Debug.Log("SetValue happened.");
+        }
 
         void Start()
         {
@@ -168,6 +205,13 @@ namespace UnityEngine.XR.Content.Interaction
             SetHandleAngle(lookAngle);
 
             SetValue(newValue);
+
+            // Debug.Log("LookDirection = " + lookDirection);
+            Debug.Log("LookAngle = " + lookAngle);      // float // it's from 50 to negative 50 for off to on. That's weird.
+            // is it normalized though? Can't I just divide by the range?
+            Debug.Log("<color=cyan>Normalized Angle = " + (lookAngle + 50) / 100 + "</color>");
+            // Debug.Log("maxAngleDistance = " + maxAngleDistance);
+            // Debug.Log("minAngleDistance = " + minAngleDistance);
         }
 
         void SetValue(bool isOn, bool forceRotation = false)
